@@ -1,0 +1,44 @@
+
+name: santana
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pc-virtual:
+    name: Build PC Virtual Gamer
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Configurar e verificar PC
+        shell: pwsh
+        run: |
+          Write-Host "===== PC VIRTUAL GAMER ====="
+
+          $cpu = Get-CimInstance Win32_Processor
+          $ram = Get-CimInstance Win32_ComputerSystem
+          $gpu = Get-CimInstance Win32_VideoController
+          $os = Get-CimInstance Win32_OperatingSystem
+
+          Write-Host "`n===== WINDOWS ====="
+          $os | Select-Object Caption, OSArchitecture
+
+          Write-Host "`n===== PROCESSADOR ====="
+          $cpu | Select-Object Name, NumberOfCores,
+            NumberOfLogicalProcessors | Format-List
+
+          Write-Host "`n===== MEMORIA RAM ====="
+          [math]::Round($ram.TotalPhysicalMemory / 1GB, 2)
+
+          Write-Host "`n===== GRAFICOS ====="
+          $gpu | Select-Object Name, DriverVersion | Format-List
+
+          Write-Host "`n===== ARMAZENAMENTO ====="
+          Get-PSDrive -PSProvider FileSystem |
+            Select-Object Name,
+              @{N="Livre_GB";E={[math]::Round($_.Free / 1GB, 2)}}
+
+          Write-Host "`n===== BUILD FINALIZADA ====="
+          Write-Host "Verificacao concluida."
+          
